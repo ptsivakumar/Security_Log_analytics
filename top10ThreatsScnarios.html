@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 10 Threat Scenarios Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .scenario-box {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .scenario-header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .risk-level {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+            font-size: 0.9em;
+        }
+        .risk-high { background-color: #e74c3c; }
+        .risk-medium { background-color: #f1c40f; }
+        .risk-low { background-color: #2ecc71; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+        }
+        .findings-table th, .findings-table td {
+            background-color: white;
+        }
+        .findings-table td {
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center; color: #2c3e50;">Top 10 Threat Scenarios Template</h1>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>1. Unauthorized Privilege Escalation</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker gains initial low-level access and attempts to elevate their privileges to an administrator.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>IDP (Okta/AAD)</td>
+                    <td>Logs showing failed attempts to change user roles or groups.</td>
+                </tr>
+                <tr>
+                    <td>Azure APIM</td>
+                    <td>Requests with a low-privilege token accessing admin API endpoints.</td>
+                </tr>
+                <tr>
+                    <td>Database</td>
+                    <td>Attempts to run privileged queries or permission changes on tables.</td>
+                </tr>
+                <tr>
+                    <td>AKS Cluster</td>
+                    <td>API server logs showing attempts to create privileged pods.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>2. Web Application Attack (SQL Injection/XSS)</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker exploits a vulnerability in a web application to steal data or compromise the system.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>F5 / Azure APIM</td>
+                    <td>Logs with suspicious request parameters, malicious query strings, or unusual character sequences.</td>
+                </tr>
+                <tr>
+                    <td>Container</td>
+                    <td>Application logs showing errors from the database or unexpected query syntax.</td>
+                </tr>
+                <tr>
+                    <td>Database</td>
+                    <td>Errors related to malformed queries.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>3. Data Exfiltration</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker with legitimate access (or an insider threat) attempts to steal a large volume of sensitive data.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Database</td>
+                    <td>An unusual number of <code>SELECT</code> queries or reads on sensitive tables.</td>
+                </tr>
+                <tr>
+                    <td>Azure APIM</td>
+                    <td>API calls to a data export endpoint followed by a large response size.</td>
+                </tr>
+                <tr>
+                    <td>F5</td>
+                    <td>Outbound traffic logs showing a large volume of data being sent to an external IP.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>4. Brute-Force/Credential Stuffing</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker attempts to guess user passwords or uses a list of stolen credentials to gain unauthorized access.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>F5</td>
+                    <td>High volume of login requests from a single source IP.</td>
+                </tr>
+                <tr>
+                    <td>IDP (Okta/AAD)</td>
+                    <td>Repeated failed login attempts for a user or across many users.</td>
+                </tr>
+                <tr>
+                    <td>Azure APIM</td>
+                    <td>High number of <code>401 Unauthorized</code> responses for authentication endpoints.</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>5. Malicious Code Injection/Container Compromise</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker exploits a container vulnerability to execute malicious code or gain control of the container.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>AKS Cluster</td>
+                    <td>Pod restarts, creation of new containers, or suspicious API calls to the Kubernetes API.</td>
+                </tr>
+                <tr>
+                    <td>Container</td>
+                    <td>Unusual commands executed within the container, new files created, or unexpected network traffic.</td>
+                </tr>
+                <tr>
+                    <td>Azure Defender</td>
+                    <td>Alerts for malware, suspicious activity, or policy violations on the host.</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>6. Unusual Geographic Access</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> A user account attempts to log in from a new or unexpected country or location.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>IDP (Okta/AAD)</td>
+                    <td>Login logs showing a new or unusual source IP geolocation.</td>
+                </tr>
+                <tr>
+                    <td>F5 / Azure APIM</td>
+                    <td>Request logs showing a source IP from a new country.</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>7. Compromised Key/Secret Access</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An unauthorized entity attempts to access secrets or keys stored in the Key Vault.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Key Vault</td>
+                    <td>Audit logs showing failed/successful secret retrieval attempts for a new user or from an unusual source.</td>
+                </tr>
+                <tr>
+                    <td>Database</td>
+                    <td>Attempts to access credentials stored in a database table.</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>8. API Abuse/Denial of Service</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker overwhelms a specific API endpoint with a flood of requests.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>F5 / Azure APIM</td>
+                    <td>High volume of requests to a single endpoint, rate limiting logs, or `429 Too Many Requests` responses.</td>
+                </tr>
+                <tr>
+                    <td>AKS Cluster</td>
+                    <td>Pod scaling events, pod health checks, or node resource exhaustion.</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>9. Insider Threat</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> A trusted employee performs unauthorized actions, such as viewing confidential data or deleting critical files.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>IDP (Okta/AAD)</td>
+                    <td>Login activity and user session data.</td>
+                </tr>
+                <tr>
+                    <td>Container</td>
+                    <td>Unusual application actions for that user, such as accessing data they don't normally use.</td>
+                </tr>
+                <tr>
+                    <td>Database</td>
+                    <td>Queries and data modifications performed by the user.</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>10. Cloud Misconfiguration Exploitation</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker takes advantage of a misconfigured cloud resource to gain access.</p>
+        
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log Source</th>
+                    <th>Expected Events</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Azure Defender</td>
+                    <td>Alerts for misconfigurations, open network ports, or exposed resources.</td>
+                </tr>
+                <tr>
+                    <td>F5 / Azure APIM</td>
+                    <td>Traffic on unexpected ports or to an unauthorized resource.</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>Audit Findings</h4>
+        <table class="findings-table">
+            <tr>
+                <th>Status</th>
+                <th>Gap Identified</th>
+                <th>Recommendation</th>
+            </tr>
+            <tr>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>
