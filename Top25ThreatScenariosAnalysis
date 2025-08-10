@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 25 Threat Scenarios & Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .scenario-box {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .scenario-header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .risk-level {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+            font-size: 0.9em;
+        }
+        .risk-high { background-color: #e74c3c; }
+        .risk-medium { background-color: #f1c40f; }
+        .risk-low { background-color: #2ecc71; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+        }
+        .findings-table th, .findings-table td, .recommendations-table th, .recommendations-table td {
+            background-color: white;
+        }
+        .findings-table td, .recommendations-table td {
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center; color: #2c3e50;">Top 25 Threat Scenarios & Recommendations</h1>
+    
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>1. Unauthorized Privilege Escalation</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker with initial low-level access attempts to gain administrator privileges.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>IDP (Okta/AAD)</td><td>Failed attempts to change user roles.</td></tr>
+            <tr><td>Azure APIM</td><td>Requests with a low-privilege token accessing admin endpoints.</td></tr>
+            <tr><td>Database</td><td>Attempts to run privileged queries (e.g., GRANT).</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Correlation</strong></td><td>Create a SIEM rule to detect a low-privilege user token making requests to known privileged APIs.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Enable detailed audit logging for permission changes in the database and IDP.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>2. Web Application Attack (SQL Injection)</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker exploits a vulnerability to steal data or bypass authentication.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5 / Azure APIM</td><td>Suspicious request parameters with SQL-like syntax (e.g., `' OR '1'='1`).</td></tr>
+            <tr><td>Container</td><td>Application errors or unexpected database query strings.</td></tr>
+            <tr><td>Database</td><td>Malicious queries being executed or returning errors.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Detection</strong></td><td>Use a SIEM rule to search for common SQLi payloads in F5 and APIM logs.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Ensure application logs capture the full, un-sanitized input that caused the error.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>3. Data Exfiltration</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker with internal access steals a large volume of sensitive data.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Database</td><td>An unusual number of <code>SELECT</code> queries or reads on sensitive tables by a single user.</td></tr>
+            <tr><td>Azure APIM</td><td>API calls to a data export endpoint with a large response size.</td></tr>
+            <tr><td>F5</td><td>Outbound traffic logs showing a spike in data volume to an external IP.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a SIEM alert for database queries on sensitive tables followed by a large outbound transfer.</td></tr>
+            <tr><td><strong>Monitoring</strong></td><td>Monitor outbound traffic volume and destination IPs from your application.</td></tr>
+        </table>
+    </div>
+    
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>4. Brute-Force/Credential Stuffing</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker uses a list of stolen credentials to gain unauthorized access.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5</td><td>High volume of login requests from a single source IP.</td></tr>
+            <tr><td>IDP (Okta/AAD)</td><td>Repeated failed login attempts for a user or across many users.</td></tr>
+            <tr><td>Azure APIM</td><td>High number of <code>401 Unauthorized</code> responses for authentication endpoints.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a SIEM rule to detect and alert on a high rate of failed logins within a short time frame.</td></tr>
+            <tr><td><strong>Security Policy</strong></td><td>Implement an F5/APIM policy to block IPs after a certain number of failed attempts.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>5. Malicious Code Injection/Container Compromise</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker gains control of a container to execute malicious code.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>AKS Cluster</td><td>Pod restarts, creation of new containers, or suspicious API calls to the Kubernetes API.</td></tr>
+            <tr><td>Container</td><td>Unusual commands executed, new files created, or unexpected network traffic.</td></tr>
+            <tr><td>Azure Defender</td><td>Alerts for malware, suspicious activity, or policy violations on the host.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Detection</strong></td><td>Integrate Azure Defender alerts with the SIEM and create rules for unexpected processes or files in containers.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Ensure container stdout/stderr is logged and contains sufficient detail for forensic analysis.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>6. Unusual Geographic Access</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> A user account attempts to log in from a new or unexpected country or location.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>IDP (Okta/AAD)</td><td>Login logs showing a new or unusual source IP geolocation.</td></tr>
+            <tr><td>F5 / Azure APIM</td><td>Request logs showing a source IP from a new country.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a SIEM alert for logins from a user's known baseline location.</td></tr>
+            <tr><td><strong>Enrichment</strong></td><td>Ensure log data is enriched with geo-location information for all source IPs.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>7. Compromised Key/Secret Access</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An unauthorized entity attempts to access secrets or keys stored in the Key Vault.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Key Vault</td><td>Audit logs showing failed/successful secret retrieval attempts from a new user or source.</td></tr>
+            <tr><td>Database</td><td>Attempts to access credentials stored in a database table.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a high-priority alert for any access attempts to critical secrets from an unknown source.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Verify all Key Vault audit logs are sent to the SIEM.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>8. API Abuse/Denial of Service</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker overwhelms a specific API endpoint with a flood of requests.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5 / Azure APIM</td><td>High volume of requests to a single endpoint, rate limiting logs, or <code>429 Too Many Requests</code> responses.</td></tr>
+            <tr><td>AKS Cluster</td><td>Pod scaling events, pod health checks, or node resource exhaustion.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Detection</strong></td><td>Implement SIEM rules to alert on a spike in API requests or HTTP 4xx/5xx errors on key endpoints.</td></tr>
+            <tr><td><strong>Policy</strong></td><td>Configure rate limiting on F5 and/or APIM for all critical APIs.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>9. Insider Threat</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> A trusted employee performs unauthorized actions, such as viewing confidential data or deleting critical files.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>IDP (Okta/AAD)</td><td>Login activity and user session data.</td></tr>
+            <tr><td>Container</td><td>Unusual application actions for that user, such as accessing data they don't normally use.</td></tr>
+            <tr><td>Database</td><td>Queries and data modifications performed by the user.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create SIEM rules to detect a user performing an action they have never done before.</td></tr>
+            <tr><td><strong>Correlation</strong></td><td>Use a correlation ID to link user activity from the IDP to application and database logs.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>10. Cloud Misconfiguration Exploitation</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker takes advantage of a misconfigured cloud resource to gain access.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Azure Defender</td><td>Alerts for misconfigurations, open network ports, or exposed resources.</td></tr>
+            <tr><td>F5 / Azure APIM</td><td>Traffic on unexpected ports or to an unauthorized resource.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Proactive Scanning</strong></td><td>Use Azure Defender for Cloud to actively scan for and alert on misconfigurations.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Ensure all network flow logs from F5/APIM are sent to the SIEM.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>11. Lateral Movement within the Network</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker moves from a compromised host to other systems to gain access to sensitive data or systems.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5</td><td>Internal traffic logs showing a compromised host connecting to an unusual destination.</td></tr>
+            <tr><td>AKS Cluster</td><td>Pod-to-pod network traffic logs showing a connection to a sensitive service.</td></tr>
+            <tr><td>Database</td><td>Login attempts from a new source IP within the internal network.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Detection</strong></td><td>Create SIEM rules to detect logins or traffic to sensitive hosts from unusual internal IPs.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Enable detailed internal network flow logging on F5 and AKS.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>12. Command and Control (C2) Communication</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> A compromised host communicates with an external server controlled by an attacker to receive commands.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5</td><td>Outbound traffic to a known malicious IP address or domain.</td></tr>
+            <tr><td>Container</td><td>Application logs showing an unusual network connection to an external IP.</td></tr>
+            <tr><td>SIEM</td><td>DNS queries for suspicious domains.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Threat Intelligence</strong></td><td>Integrate threat intelligence feeds into your SIEM to flag C2 IPs and domains.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Ensure DNS query logs and all outbound network connections are logged.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>13. Suspicious API Endpoint Enumeration</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker probes your API gateway to find hidden or unprotected endpoints.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Azure APIM</td><td>A large number of <code>404 Not Found</code> or <code>403 Forbidden</code> responses from a single IP.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a SIEM rule to detect a high rate of unauthorized API calls from a single IP.</td></tr>
+            <tr><td><strong>Policy</strong></td><td>Implement API schema validation on APIM to reject requests that do not conform to your API definition.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>14. Unencrypted Communication</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> Sensitive data is transmitted over unencrypted channels, making it vulnerable to interception.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5</td><td>Logs showing unencrypted HTTP traffic to an application that should be using HTTPS.</td></tr>
+            <tr><td>Azure Defender</td><td>Alerts for unencrypted storage or network traffic.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Policy</strong></td><td>Configure F5 and APIM to enforce HTTPS and block or redirect HTTP traffic.</td></tr>
+            <tr><td><strong>Monitoring</strong></td><td>Use Azure Defender to scan for and alert on unencrypted communication.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>15. User Account Creation by Attacker</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker with internal access creates a new, unauthorized user account to maintain persistence.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>IDP (Okta/AAD)</td><td>Audit logs showing a new user account being created, especially by a non-administrator.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a high-priority alert for any new user account creation.</td></tr>
+            <tr><td><strong>Access Control</strong></td><td>Restrict user creation privileges to a very limited set of administrators.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>16. Credential Dumping</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker extracts user credentials from a compromised system's memory or files.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Azure Defender</td><td>Alerts for suspicious process execution (e.g., `mimikatz`) or file access.</td></tr>
+            <tr><td>Container</td><td>System logs showing an unusual process accessing memory or system files.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Endpoint Detection</strong></td><td>Use Azure Defender for Cloud's endpoint detection capabilities to detect credential dumping tools.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Ensure process creation and memory access logs are captured where possible.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>17. Web Shell Installation</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker uploads a malicious file to the web server to gain persistent access and remote code execution.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5 / Azure APIM</td><td>API calls to a file upload endpoint, followed by requests to the newly created file.</td></tr>
+            <tr><td>Container</td><td>File system logs showing the creation of an unexpected file in a web-accessible directory.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Detection</strong></td><td>Create a SIEM rule to correlate file uploads with subsequent access to that file.</td></tr>
+            <tr><td><strong>Policy</strong></td><td>Implement policies to restrict file execution in web-accessible directories.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>18. Exploitation of Misconfigured Key Vault</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker with minimal access retrieves sensitive secrets due to weak access policies on the Key Vault.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Key Vault</td><td>Audit logs showing a low-privilege user successfully retrieving a secret.</td></tr>
+            <tr><td>Azure Defender</td><td>Alerts on weak Key Vault access policies.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Access Review</strong></td><td>Regularly review and audit Key Vault access policies to ensure the principle of least privilege.</td></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a high-priority alert for any unauthorized access to secrets.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>19. Suspicious Container Activity</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> A container exhibits unusual behavior, such as running a new process or connecting to an unexpected IP.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Container</td><td>System logs showing a new process being spawned inside the container.</td></tr>
+            <tr><td>AKS Cluster</td><td>Network flow logs showing a container connecting to an unusual internal or external IP.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Behavioral Analysis</strong></td><td>Use a SIEM to baseline normal container behavior and alert on deviations.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Ensure process creation and network connection logs are captured from within containers.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>20. Sensitive Data Exposure via Logs</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> An application logs sensitive data (e.g., PII, passwords) in plain text, which could be exposed in log files.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Container</td><td>Application logs containing sensitive information like passwords, credit card numbers, or PII.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Code Review</strong></td><td>Conduct regular code reviews to ensure sensitive data is not being logged.</td></tr>
+            <tr><td><strong>Logging Policy</strong></td><td>Implement a logging standard that forbids the logging of sensitive information.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>21. Inadequate Input Validation</h3>
+            <span class="risk-level risk-medium">Medium Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker bypasses validation by sending malformed data, leading to application errors or unexpected behavior.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5 / Azure APIM</td><td>Requests with unusual characters, large data blobs, or malformed JSON.</td></tr>
+            <tr><td>Container</td><td>Application logs showing errors from input parsing or validation failures.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Policy</strong></td><td>Implement a policy on APIM to enforce request schema validation.</td></tr>
+            <tr><td><strong>Code Review</strong></td><td>Ensure robust input validation is implemented at the application layer.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>22. Unused or Zombie Accounts</h3>
+            <span class="risk-level risk-low">Low Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker compromises a dormant user account, which goes unnoticed for a long period.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>IDP (Okta/AAD)</td><td>Login attempts from a user account that has been inactive for an extended period.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Access Review</strong></td><td>Implement a regular process to review and disable inactive user accounts.</td></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a SIEM alert for any login from a dormant account.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>23. DDoS Attack</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker overwhelms the application with a high volume of traffic, making it unavailable to legitimate users.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5 / Azure APIM</td><td>Massive spike in requests from multiple source IPs, often with a high rate of errors.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Protection</strong></td><td>Use a dedicated DDoS protection service.</td></tr>
+            <tr><td><strong>Alerting</strong></td><td>Implement SIEM alerts for a significant increase in request volume and error rates.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>24. Security Policy Tampering</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker with access to a control plane attempts to disable security controls to facilitate an attack.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>F5 / Azure APIM</td><td>Audit logs showing a security policy being disabled or modified.</td></tr>
+            <tr><td>AKS Cluster</td><td>Kubernetes API logs showing a network policy or role-based access control (RBAC) policy being altered.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Alerting</strong></td><td>Create a SIEM rule to alert on any modification to security policies or RBAC.</td></tr>
+            <tr><td><strong>Logging</strong></td><td>Ensure all audit logs for F5/APIM/AKS are sent to the SIEM.</td></tr>
+        </table>
+    </div>
+
+    <div class="scenario-box">
+        <div class="scenario-header">
+            <h3>25. Supply Chain Attack</h3>
+            <span class="risk-level risk-high">High Risk</span>
+        </div>
+        <p><strong>Description:</strong> An attacker compromises a third-party library or dependency used by your application.</p>
+        <h4>Expected Log Evidence</h4>
+        <table>
+            <tr><th>Log Source</th><th>Expected Events</th></tr>
+            <tr><td>Container</td><td>Application logs showing unexpected errors or behavior after a dependency update.</td></tr>
+            <tr><td>F5</td><td>Outbound traffic to a new, suspicious domain that was not part of the previous application behavior.</td></tr>
+        </table>
+        <h4>Recommendations</h4>
+        <table class="recommendations-table">
+            <tr><th>Recommendation</th><th>Action</th></tr>
+            <tr><td><strong>Scanning</strong></td><td>Use a container vulnerability scanner to scan images for known vulnerabilities.</td></tr>
+            <tr><td><strong>Monitoring</strong></td><td>Create SIEM rules to detect new outbound connections from your containers to suspicious domains.</td></tr>
+        </table>
+    </div>
+
+</body>
+</html>
