@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logging and Monitoring Audit Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        .section-header {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        .red-flag {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .yellow-flag {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        .green-flag {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="section-header">Logging and Monitoring Audit Template</h1>
+
+    <div style="margin-top: 20px;">
+        <p>This template is designed for a thorough, threat-centric audit of your logging and monitoring. It's tailored to your specific architecture and provides a structured process for identifying critical gaps.</p>
+    </div>
+
+    <h2 class="section-header">Step 1: Detailed Log Source Inventory and Quality Assessment</h2>
+    <p><strong>Application:</strong> _________________________</p>
+    <p><strong>Application Owner:</strong> _________________________</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Log Source</th>
+                <th>Log Type</th>
+                <th>Format</th>
+                <th>Key Fields Captured</th>
+                <th>Destination</th>
+                <th>Retention</th>
+                <th>Notes on Quality / Gaps</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>F5 Firewall</strong></td>
+                <td>Firewall events</td>
+                <td>Syslog/JSON</td>
+                <td>TBC</td>
+                <td>SIEM</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>IDP (Okta/AAD)</strong></td>
+                <td>Authentication logs</td>
+                <td>JSON</td>
+                <td>TBC</td>
+                <td>ELK/SIEM</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>Azure APIM</strong></td>
+                <td>Gateway requests</td>
+                <td>JSON</td>
+                <td>TBC</td>
+                <td>SIEM</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>AKS Cluster</strong></td>
+                <td>Control Plane logs</td>
+                <td>JSON</td>
+                <td>TBC</td>
+                <td>SIEM</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>Container</strong></td>
+                <td>Application logs</td>
+                <td>JSON</td>
+                <td>TBC</td>
+                <td>ELK</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>Database</strong></td>
+                <td>Audit logs</td>
+                <td>JSON/DB specific</td>
+                <td>TBC</td>
+                <td>SIEM</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>Key Vault</strong></td>
+                <td>Audit logs</td>
+                <td>JSON</td>
+                <td>TBC</td>
+                <td>SIEM</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 class="section-header">Step 2: Threat-Based Analysis and Gap Identification</h2>
+
+    <h3>Threat Scenario 1: Unprotected Privilege Escalation</h3>
+    <p><strong>Attack Description:</strong> An attacker gains initial low-level access and attempts to elevate their privileges to an administrator.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Attack Step</th>
+                <th>Expected Log Evidence</th>
+                <th>Actual Log Evidence Found?</th>
+                <th>Gap Identified? (Yes/No)</th>
+                <th>Findings</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Failed attempts to access admin pages</strong></td>
+                <td>F5/APIM logs with <code>403</code> responses on <code>/admin</code> endpoint</td>
+                <td><input type="checkbox" /> Yes <input type="checkbox" /> No</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>Modification of user permissions</strong></td>
+                <td>Database logs showing an <code>UPDATE</code> on a permissions table</td>
+                <td><input type="checkbox" /> Yes <input type="checkbox" /> No</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>Successful login with a new role</strong></td>
+                <td>IDP logs showing a user role change</td>
+                <td><input type="checkbox" /> Yes <input type="checkbox" /> No</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>Access to restricted resources</strong></td>
+                <td>Container logs showing an API call only for admins</td>
+                <td><input type="checkbox" /> Yes <input type="checkbox" /> No</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Threat Scenario 2: Data Exfiltration</h3>
+    <p><strong>Attack Description:</strong> An attacker with legitimate access attempts to steal sensitive data.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Attack Step</th>
+                <th>Expected Log Evidence</th>
+                <th>Actual Log Evidence Found?</th>
+                <th>Gap Identified? (Yes/No)</th>
+                <th>Findings</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Large number of successful data queries</strong></td>
+                <td>Database logs showing an unusually high number of <code>SELECT</code> statements</td>
+                <td><input type="checkbox" /> Yes <input type="checkbox" /> No</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>API calls to export data</strong></td>
+                <td>APIM/Container logs showing API calls to <code>/export</code> endpoints</td>
+                <td><input type="checkbox" /> Yes <input type="checkbox" /> No</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td><strong>Access to secrets</strong></td>
+                <td>Key Vault audit logs showing a user accessing a large number of secrets</td>
+                <td><input type="checkbox" /> Yes <input type="checkbox" /> No</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 class="section-header">Step 3: Correlation, Enrichment, and Retention Analysis</h2>
+
+    <h3>Log Correlation Analysis</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Test</th>
+                <th>Finding</th>
+                <th>Gap Identified? (Yes/No)</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Can you trace a single user's activity from an IDP login to an APIM call and then to a database query using a <strong>Correlation ID</strong>?</td>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td>Can you link a blocked event on the F5 to subsequent activity in the APIM logs?</td>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Log Enrichment and Forwarding Analysis</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Test</th>
+                <th>Finding</th>
+                <th>Gap Identified? (Yes/No)</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Are application logs from ELK successfully forwarded to the SIEM for centralized analysis?</td>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+            <tr>
+                <td>Is geolocation and threat intelligence automatically added to log events in the SIEM?</td>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Log Retention Analysis</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Test</th>
+                <th>Finding</th>
+                <th>Gap Identified? (Yes/No)</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Are all critical logs stored for a minimum of 180 days for incident response and forensics?</td>
+                <td>TBC</td>
+                <td>TBC</td>
+                <td>TBC</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
