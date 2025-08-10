@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Analysis Scenarios with Correlation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .scenario-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center;">Analyzing Logs for Each "What If" Scenario through Correlation</h1>
+
+    <p>To get the full picture of an attack, you must correlate logs across every component. Correlation is the process of linking disparate log entries from different systems to build a single, coherent timeline of an event. This is the only way to turn raw log data into actionable security intelligence.</p>
+    
+    <hr>
+
+    <h2>Data Breach & Integrity</h2>
+    
+    <div class="scenario-section">
+        <h3>What if a customer's personal data was accessed by an unauthorized person?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>IDP</strong></td>
+                    <td>Authentication Logs</td>
+                    <td>User ID, login time, source IP.</td>
+                    <td>Start by identifying the user account that made the request. Look for any suspicious logins.</td>
+                </tr>
+                <tr>
+                    <td><strong>Azure APIM</strong></td>
+                    <td>Request Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, API endpoint, timestamp.</td>
+                    <td><strong>Correlate</strong> the user's login time with their first API call. Use the <strong>Correlation ID</strong> to trace this call to the application layer.</td>
+                </tr>
+                <tr>
+                    <td><strong>Container</strong></td>
+                    <td>Application Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, data accessed, timestamp.</td>
+                    <td>Follow the <strong>Correlation ID</strong> to the application logs to see which specific function was called to access the data.</td>
+                </tr>
+                <tr>
+                    <td><strong>Database</strong></td>
+                    <td>Audit Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, query text, table name, timestamp.</td>
+                    <td><strong>Correlate</strong> the container's application function with a specific SELECT query in the database audit logs using the <strong>Correlation ID</strong>. This confirms the data access.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="scenario-section">
+        <h3>What if our financial records were altered without our knowledge?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>IDP</strong></td>
+                    <td>Audit Logs</td>
+                    <td>User ID, login time, role changes.</td>
+                    <td>Check if the attacker logged in with an account that had its permissions recently elevated.</td>
+                </tr>
+                <tr>
+                    <td><strong>Azure APIM</strong></td>
+                    <td>Request Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, API endpoint, timestamp.</td>
+                    <td><strong>Correlate</strong> the suspicious login with an API call to a function that performs data modification.</td>
+                </tr>
+                <tr>
+                    <td><strong>Database</strong></td>
+                    <td>Audit Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, query text (UPDATE, DELETE), table name, timestamp.</td>
+                    <td>Use the <strong>Correlation ID</strong> to directly link the API call to a specific <code>UPDATE</code> or <code>DELETE</code> query that altered the financial records.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="scenario-section">
+        <h3>What if someone exfiltrated a large amount of data over a period of weeks or months, a "low and slow" attack? Could we detect it?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Database</strong></td>
+                    <td>Audit Logs</td>
+                    <td>User ID, number of <code>SELECT</code> queries, data volume returned.</td>
+                    <td>Establish a baseline for normal query volume. <strong>Correlate</strong> a small but consistent increase in read queries with outbound traffic.</td>
+                </tr>
+                <tr>
+                    <td><strong>F5</strong></td>
+                    <td>Outbound Traffic Logs</td>
+                    <td>Source IP, destination IP, data volume, timestamp.</td>
+                    <td><strong>Correlate</strong> the database activity with F5 logs showing a consistent, low-volume outbound connection to a suspicious IP.</td>
+                </tr>
+                <tr>
+                    <td><strong>SIEM</strong></td>
+                    <td>All logs</td>
+                    <td>User ID, IP, data volume, timestamp.</td>
+                    <td>The SIEM should be configured to <strong>correlate</strong> these low-volume events over a long period to identify the "low and slow" pattern.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+    
+    <h2>Insider & Account Threats</h2>
+    
+    <div class="scenario-section">
+        <h3>What if a senior employee's account was compromised and used to download sensitive files?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>IDP</strong></td>
+                    <td>Authentication Logs</td>
+                    <td>User ID, source IP, geolocation, user agent.</td>
+                    <td>Look for an authentication event from a suspicious location. This is your starting point.</td>
+                </tr>
+                <tr>
+                    <td><strong>Azure APIM</strong></td>
+                    <td>Request Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, API endpoint, request/response size.</td>
+                    <td><strong>Correlate</strong> the suspicious login with an API call to a file download endpoint.</td>
+                </tr>
+                <tr>
+                    <td><strong>F5</strong></td>
+                    <td>Outbound Traffic Logs</td>
+                    <td>Source IP, destination IP, data volume.</td>
+                    <td><strong>Correlate</strong> the API request with F5 logs showing a large volume of data leaving your network to the same source IP.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="scenario-section">
+        <h3>What if a disgruntled employee tried to delete or corrupt key company data?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>IDP</strong></td>
+                    <td>Audit Logs</td>
+                    <td>User ID, login time, permission changes.</td>
+                    <td>Check if the employee's permissions were elevated just before the destructive action.</td>
+                </tr>
+                <tr>
+                    <td><strong>Azure APIM</strong></td>
+                    <td>Request Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, API endpoint.</td>
+                    <td><strong>Correlate</strong> the user's login with an API call to a data deletion or corruption endpoint.</td>
+                </tr>
+                <tr>
+                    <td><strong>Database</strong></td>
+                    <td>Audit Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, query text (DELETE, DROP), table name.</td>
+                    <td>Use the <strong>Correlation ID</strong> to directly link the API call to a destructive database query.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="scenario-section">
+        <h3>What if a third-party vendor with access to our systems had their credentials stolen?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>IDP</strong></td>
+                    <td>Authentication Logs</td>
+                    <td>User ID, source IP, geolocation.</td>
+                    <td>Look for a successful login from the vendor's account from an unusual location.</td>
+                </tr>
+                <tr>
+                    <td><strong>Key Vault</strong></td>
+                    <td>Audit Logs</td>
+                    <td>User ID, secret name, access outcome.</td>
+                    <td><strong>Correlate</strong> the suspicious login with an attempt to access secrets that the vendor's account normally doesn't use.</td>
+                </tr>
+                <tr>
+                    <td><strong>Database</strong></td>
+                    <td>Audit Logs</td>
+                    <td>User ID, query text.</td>
+                    <td><strong>Correlate</strong> the Key Vault access with unauthorized queries from the vendor's account.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="scenario-section">
+        <h3>What if an external attacker tried to gain administrative access by guessing passwords?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>F5</strong></td>
+                    <td>Access Logs</td>
+                    <td>Source IP, timestamp, request count.</td>
+                    <td>Look for a very high volume of requests from a single IP to the login endpoint. This is your initial alert.</td>
+                </tr>
+                <tr>
+                    <td><strong>IDP</strong></td>
+                    <td>Authentication Logs</td>
+                    <td>User ID, timestamp, source IP, failure reason.</td>
+                    <td><strong>Correlate</strong> the F5 traffic with a series of failed login attempts for one or more user accounts in the IDP logs.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+    
+    <h2>Application & System Availability</h2>
+    
+    <div class="scenario-section">
+        <h3>What if a critical application became unavailable for an entire day? Could we figure out why?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Azure APIM</strong></td>
+                    <td>Diagnostic Logs</td>
+                    <td>Timestamp, response status codes (e.g., 500 errors).</td>
+                    <td>Look for a sudden spike in 5xx errors, indicating an application outage.</td>
+                </tr>
+                <tr>
+                    <td><strong>AKS</strong></td>
+                    <td>Control Plane Logs</td>
+                    <td>Pod name, timestamp, pod status, restart count.</td>
+                    <td><strong>Correlate</strong> the APIM errors with AKS logs showing a pod has crashed.</td>
+                </tr>
+                <tr>
+                    <td><strong>Container</strong></td>
+                    <td>Application Logs</td>
+                    <td>Timestamp, error messages, stack traces.</td>
+                    <td>Follow the AKS logs to the container logs to find the specific error message or exception that caused the application to crash.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="scenario-section">
+        <h3>What if a new feature we released introduced a bug that caused widespread data corruption? Could we quickly identify which users were affected?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Azure APIM</strong></td>
+                    <td>Request Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, timestamp, API endpoint for the new feature.</td>
+                    <td>Identify all users who accessed the new feature.</td>
+                </tr>
+                <tr>
+                    <td><strong>Container</strong></td>
+                    <td>Application Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, error messages, timestamp.</td>
+                    <td><strong>Correlate</strong> the users from APIM with application logs to find any errors related to the new feature using the <strong>Correlation ID</strong>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Database</strong></td>
+                    <td>Audit Logs</td>
+                    <td><strong>Correlation ID</strong>, user ID, query text (UPDATE), timestamp.</td>
+                    <td><strong>Correlate</strong> the error logs with the database audit logs to find which records were affected by a faulty <code>UPDATE</code> statement.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="scenario-section">
+        <h3>What if our application was targeted by a massive denial-of-service attack? Could we differentiate between legitimate traffic and the attack?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>F5</strong></td>
+                    <td>Access Logs</td>
+                    <td>Source IP, timestamp, request volume.</td>
+                    <td>The F5 logs will show an enormous spike in traffic. Analyze headers and source IPs to differentiate legitimate users from attack traffic.</td>
+                </tr>
+                <tr>
+                    <td><strong>Azure APIM</strong></td>
+                    <td>Diagnostic Logs</td>
+                    <td>Request count, response time, status codes.</td>
+                    <td><strong>Correlate</strong> the F5 traffic spike with APIM logs to confirm the attack has impacted the application.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+    
+    <h2>Forensic Readiness & Response</h2>
+    
+    <div class="scenario-section">
+        <h3>What if a developer accidentally introduced a vulnerability that was later exploited? Could we trace the issue back to the source?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Azure APIM</strong></td>
+                    <td>Request Logs</td>
+                    <td><strong>Correlation ID</strong>, API endpoint, request body.</td>
+                    <td>Find the malicious request and the payload that triggered the vulnerability.</td>
+                </tr>
+                <tr>
+                    <td><strong>Container</strong></td>
+                    <td>Application Logs</td>
+                    <td><strong>Correlation ID</strong>, error message, stack trace.</td>
+                    <td><strong>Correlate</strong> the APIM request to the application logs to see the error or unusual behavior caused by the payload.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="scenario-section">
+        <h3>What if a critical server was taken offline and a key piece of evidence was deleted?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>AKS</strong></td>
+                    <td>Control Plane Logs</td>
+                    <td>Pod name, user ID, timestamp, deletion event.</td>
+                    <td>The AKS logs are your best chance to find a <code>DELETE</code> event for a pod or container and identify the user who initiated it.</td>
+                </tr>
+                <tr>
+                    <td><strong>Azure Defender</strong></td>
+                    <td>Alerts</td>
+                    <td>Timestamp, event details, user ID.</td>
+                    <td>An alert from Azure Defender might have been triggered just before the deletion, providing a lead. <strong>Correlate</strong> the alert with the AKS event.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="scenario-section">
+        <h3>What if we were asked by law enforcement to provide a complete timeline of a security incident? Could we provide the necessary evidence?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>All components</strong></td>
+                    <td>All logs</td>
+                    <td><strong>Correlation ID</strong>, User ID, Timestamp, IP, full request/response data.</td>
+                    <td>This is the ultimate test. You must be able to <strong>correlate</strong> all events using the <strong>Correlation ID</strong> to build a minute-by-minute timeline of the attack, from the initial request at the F5 to the final database action.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+    
+    <h2>Malicious Activity</h2>
+    
+    <div class="scenario-section">
+        <h3>What if our application was used to send out spam or phishing emails?</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Logs to Analyze</th>
+                    <th>Required Info</th>
+                    <th>Analysis Logic (Correlation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Container</strong></td>
+                    <td>Application Logs</td>
+                    <td>User ID, application function called (e.g., sendEmail), destination email address.</td>
+                    <td>Find the malicious code or function within the application that is sending the emails and the user who triggered it.</td>
+                </tr>
+                <tr>
+                    <td><strong>F5</strong></td>
+                    <td>Outbound Traffic Logs</td>
+                    <td>Source IP, destination IP, protocol (e.g., SMTP).</td>
+                    <td><strong>Correlate</strong> the application activity with F5 logs showing unexpected outbound traffic to email ports (25, 587) from your application.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>
